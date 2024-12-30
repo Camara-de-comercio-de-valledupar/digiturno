@@ -1,10 +1,12 @@
+import { JuridicalCase } from '@/services/juridical-case-service';
 import { useState, useCallback } from 'react';
-import {
-  fetchCases,
-  createCase,
-  deleteCase,
-  fetchCaseHistory,
-} from '@/services/juridical-case-service';
+import useJuridicalCaseService from './use-juridical-case-service';
+// import {
+//   fetchCases,
+//   createCase,
+//   deleteCase,
+//   fetchCaseHistory,
+// } from '@/services/juridical-case-service';
 
 export const useJuridicalCases = () => {
   const [cases, setCases] = useState<JuridicalCase[]>([]);
@@ -13,6 +15,8 @@ export const useJuridicalCases = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Hook del servicio
+  const service = useJuridicalCaseService()
   // Obtener la lista de casos
   const loadCases = useCallback(async () => {
     setLoading(true);
@@ -32,7 +36,7 @@ export const useJuridicalCases = () => {
   const addCase = async (subject: string, observation: string) => {
     setError(null);
     try {
-      const newCase = await createCase(subject, observation);
+      const newCase = await service.createJuridicalCase(attendantId: string, subject: string, clientId: number, observation: string);
       setCases((prevCases) => [...prevCases, newCase]);
       setSuccessMessage('¡Caso creado con éxito!');
       setTimeout(() => setSuccessMessage(null), 2000);
