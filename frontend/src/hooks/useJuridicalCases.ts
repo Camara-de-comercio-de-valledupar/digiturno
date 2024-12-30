@@ -1,28 +1,23 @@
 import { JuridicalCase } from '@/services/juridical-case-service';
 import { useState, useCallback } from 'react';
 import useJuridicalCaseService from './use-juridical-case-service';
-// import {
-//   fetchCases,
-//   createCase,
-//   deleteCase,
-//   fetchCaseHistory,
-// } from '@/services/juridical-case-service';
 
 export const useJuridicalCases = () => {
   const [cases, setCases] = useState<JuridicalCase[]>([]);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<JuridicalCase[]>([]); // Tipo específico en lugar de `any[]`
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Hook del servicio
-  const service = useJuridicalCaseService()
+  const service = useJuridicalCaseService();
+
   // Obtener la lista de casos
   const loadCases = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchCases();
+      const data = await service.getJuridicalCases(); // Reemplaza `fetchCases`
       setCases(data);
     } catch (err) {
       setError('Error al cargar los casos.');
@@ -30,13 +25,23 @@ export const useJuridicalCases = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [service]);
 
   // Crear un nuevo caso
-  const addCase = async (subject: string, observation: string) => {
+  const addCase = async (
+    attendantId: number,
+    subject: string,
+    clientId: number,
+    observation: string
+  ) => {
     setError(null);
     try {
-      const newCase = await service.createJuridicalCase(attendantId: string, subject: string, clientId: number, observation: string);
+      const newCase = await service.createJuridicalCase(
+        attendantId,
+        subject,
+        clientId,
+        observation
+      );
       setCases((prevCases) => [...prevCases, newCase]);
       setSuccessMessage('¡Caso creado con éxito!');
       setTimeout(() => setSuccessMessage(null), 2000);
@@ -50,7 +55,7 @@ export const useJuridicalCases = () => {
   const removeCase = async (id: number) => {
     setError(null);
     try {
-      await deleteCase(id);
+      await service.removeJuridicalCase(id); // Reemplaza `deleteCase`
       setCases((prevCases) => prevCases.filter((c) => c.id !== id));
       setSuccessMessage('¡Caso eliminado con éxito!');
       setTimeout(() => setSuccessMessage(null), 2000);
@@ -65,7 +70,7 @@ export const useJuridicalCases = () => {
     setError(null);
     setLoading(true);
     try {
-      const data = await fetchCaseHistory(id);
+      const data = await service.getCaseHistory(id); // Reemplaza `fetchCaseHistory`
       setHistory(data);
     } catch (err) {
       setError('Error al cargar el historial del caso.');
